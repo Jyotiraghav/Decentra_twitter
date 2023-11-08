@@ -144,4 +144,5 @@ describe("Decentratwitter", function () {
       expect(user2Nfts.length).to.equal(1)
     });
   });
+
 });

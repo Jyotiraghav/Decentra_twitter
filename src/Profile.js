@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { ethers } from "ethers"
 import { Row, Form, Button, Card, ListGroup, Col } from 'react-bootstrap'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
+const client = ipfsHttpClient('https://api.pinata.cloud/pinning/pinFileToIPFS')
 
 
-const App = ({ contract, accountj}) => {
+const App = ({ contract, account }) => {
     const [profile, setProfile] = useState('')
     const [nfts, setNfts] = useState('')
-    const [avatar, setAvatar] = useState(null)
+    const [avatar, setAvatar] = useState('')
     const [username, setUsername] = useState('')
     const [loading, setLoading] = useState(true)
     const loadMyNFTs = async () => {
@@ -40,6 +40,43 @@ const App = ({ contract, accountj}) => {
     const uploadToIPFS = async (event) => {
         event.preventDefault()
         const file = event.target.files[0]
+        const axios = require('axios')
+const FormData = require('form-data')
+const fs = require('fs')
+
+
+const pinFileToIPFS = async () => {
+    const formData = new FormData();
+    const src = "path/to/file.png";
+    
+    const file = fs.createReadStream(src)
+    formData.append('file', file)
+    
+    const pinataMetadata = JSON.stringify({
+      name: 'File name',
+    });
+    formData.append('pinataMetadata', pinataMetadata);
+    
+    const pinataOptions = JSON.stringify({
+      cidVersion: 0,
+    })
+    formData.append('pinataOptions', pinataOptions);
+
+    try{
+      const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+        maxBodyLength: "Infinity",
+        headers: {
+          'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+          'Authorization': `Bearer ${JWT}`
+        }
+      });
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+}
+pinFileToIPFS()
+
         if (typeof file !== 'undefined') {
             try {
                 const result = await client.add(file)
@@ -50,8 +87,9 @@ const App = ({ contract, accountj}) => {
         }
     }
     const mintProfile = async (event) => {
+        console.log(event, avatar, username);
         if (!avatar || !username) return
-        try {
+try {
             const result = await client.add(JSON.stringify({ avatar, username }))
             setLoading(true)
             await (await contract.mint(`https://ipfs.infura.io/ipfs/${result.path}`)).wait()

@@ -1,5 +1,4 @@
 import {
-  NavLink,
   Link,
   BrowserRouter,
   Routes,
@@ -92,7 +91,9 @@ function App() {
               <Route path="/" element={
                 <Home contract={contract} account={account} />
               } />
-              <Route path="/profile" /> 
+              <Route path="/profile" element={
+                <Profile contract={contract} account={account} />
+              } /> 
             </Routes>
           )}
         </div>
